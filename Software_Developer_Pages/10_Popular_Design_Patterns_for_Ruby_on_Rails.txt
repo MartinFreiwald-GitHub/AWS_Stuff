@@ -1,0 +1,667 @@
+10 Popular Design Patterns for Ruby on Rails
+
+April 30, 2022
+by
+
+Scout APM
+in
+Engineering
+
+
+
+Design patterns are some of the best things that you can do for your codebase and your future developers. Rails already implements the Model-View-Controller (MVC) design pattern to reduce clutter and organize code better. Such rails design patterns help to keep code smell away and achieve the ever-active goal of “Fat Model, Skinny Controller.”
+
+In this article, we will take a look at the concept of design patterns in detail. We will also go through how and why they make our lives easier and when it is not good to use them. Finally, we will discuss ten popular design patterns for Ruby on Rails and examine an example of each.
+
+Without further ado, let’s dive right in!
+
+Feel free to use these links to navigate the guide:
+
+What is a Design Pattern?
+Why Use Design Patterns?
+Potential Cons of Using Design Patterns
+Popular Rails Design Patterns
+Builder
+Decorator
+Form
+Interactor
+Observer
+Policy
+Presenter
+Query
+Service
+Value
+What is a Design Pattern?
+Design patterns are some of the best practices that you should follow while composing your application’s code architecture to enhance readability and be able to maintain it better in the future. Design patterns also help reduce resource leaks and common mistakes since you must follow a pre-tested style of designing your codebase.
+
+It is essential to understand that design patterns are not concrete—they are merely concepts and recommended practices to follow. This article, or any guide on design patterns for that sake, will not give you working code that you can plug into your application right away. Instead, you will learn the design principles behind each pattern and how it solves a particular problem.
+
+The intent behind design patterns is to channel your thinking through a set of tried and tested guidelines. These methodologies are bound to solve your problems and make your code better, but they can get inflexible at times.
+
+Now that you understand what design patterns are, let's look at some of the reasons you should use design patterns in your code.
+
+Why Use Design Patterns?
+Design patterns offer several benefits over the traditional way of coding from scratch. Here are some of the top reasons why you should consider using design patterns in your application:
+
+Routine: Using design patterns helps you to follow pre-built practices and not waste time reinventing the wheel.
+Improved Object-Oriented Skills: With the use of design patterns over time, you strengthen your understanding of object-oriented programming.
+Understanding of Standards Used Across Libraries: Most libraries and languages use design patterns in their APIs, so the frequent use of design patterns will help you understand the implementation of most standard libraries and languages.
+Sharing Code Vocabulary With Team: If you and your team follow standard design patterns in a project, it will be easy for everybody to understand their code.
+Innovating Your Thinking: When you learn the building concepts behind design patterns, you open new avenues of thinking for new architectures for your codebase.
+Potential Cons of Using Design Patterns
+While design patterns seem like the most significant things in programming, they come at a cost. Here are a couple of potential downsides to using design patterns:
+
+Requires Knowledge: Using design patterns in a group project requires knowledge of the required patterns from everybody. This adds to the workload of the team.
+Can Limit Thinking: Design patterns are all about limiting yourself to a set of predefined ways of thinking while designing code. This can, at times, limit the overall creativity of a developer in innovating for specific, challenging problems.
+Overkill For Small Use Case: Design patterns work the best for projects where developers must write a lot of code. In smaller projects, following design patterns can add unnecessary boilerplate to the codebase.
+Popular Rails Design Patterns
+Here are ten popular rails design patterns to help you make your next rails project clean and crash-free.
+
+Builder
+The Builder pattern makes the construction of complex objects gradual and straightforward. It is also known as Adapter, and its primary purpose is to simplify the object instantiation process.
+
+Problem
+Imagine if you were building a highly customized car. You would need multiple stages of development—internal structure or chassis, engine, and related machinery, outer body structure, designing and decals, and other comfort-related installations like dashboard, seats, etc. If you were to represent this process via classes, you would have one colossal class constructor that would take in all of these preferences as arguments. But that can get too cluttered for creating a basic, economy four-wheeler. This is where the concept of builders kicks in.
+
+Solution
+Like the way a car goes through a series of steps in an assembly, the builder pattern splits the construction of any object into a series of small and gradual steps. For the car example, there would be a ChassisBuilder, PerformanceBuilder, BodyBuilder, InstallationBuilder, and more, at each step of the car assembly process. The output of each of these builder interfaces would be an input to the next. This way, you don’t need to maintain one huge constructor for your Car class that can get prone to errors.
+
+When To Use
+The Builder pattern is helpful in the following situations:
+
+When you need many permutations of the existing features in a class while creating new objects.
+When you are looking to define an assembly process for creating objects, rather than relying on constructors alone.
+Example
+Let’s say your application requires users to upload a document. It can be in any format, including PDF, JPEG, PNG, etc. Each of these file types requires a unique way of handling a particular function, say conversion to a string. Creating one large class that covers them all can make the code cluttered and hard to understand.
+
+The builder pattern can help create a modularised build process for the correct type of parser based on the file extension encountered.
+
+This is how your parser classes would look:
+
+class BaseParser
+    def initialize(path)
+        @path = path
+     end
+end
+
+class PdfFileParser < BaseParser
+    def toString
+        # return a string
+    end
+end
+
+class JpegFileParser < BaseParser
+    def toString
+         # return a string
+    end
+end
+
+And here's how you can create a builder for the final parser object:
+
+class ParserBuilder
+    def self.build(path)
+        case File.extname(path)
+            when '.pdf' then PdfFileParser.new(path)
+            when '.jpeg' then JpegFileParser.new(path)
+            else
+                raise(UnknownFileFormat)
+            end
+    end
+end
+Finally, here’s how you can use this builder:
+
+path = '../../something.ext' # input from user
+imageParser = ParserBuilder.build(path)
+storage.save(imageParser.toString())
+Decorator
+The Decorator pattern adds new functionality to an existing object by wrapping it with additional objects containing the new features. This helps to modify an instance of a class for extra features and not define new static subclasses in the code.
+
+Problem
+Imagine you are trying to build cars using programming, and you don’t want to go into the hassle of creating extensive builders for all types of possible cars. Instead, you want to begin by creating an introductory car class with the most standard features and preferences. Now, if you need to customize, say, the car’s roof to be collapsible, you would conventionally need to extend the base car class to a subclass and provide it with a collapsible roof attribute. If you again need to change a feature, say, add carbon hoods to the car, you need to extend the base class again. It might seem evident now that you must create a new, static class in your codebase for each customization, but this can very quickly bloat the code.
+
+Solution
+Decorators solve this issue by providing a set of interfaces that can take in a plain, base class object and return a decorated version of that object, meaning wrap it around with the feature requested. This way, your base class stays clean and straightforward, and your decorators are highly modularised, covering only the features needed.
+
+When To Use
+The Decorator pattern is helpful in the following situations:
+
+When you want to make modifications to existing objects of a class rather than a class itself.
+When you want each additional feature to be independent of others without following a fixed sequence to modify the object.
+Example
+Here’s how you can create a decorator for the above problem:
+
+class Car
+    def roof
+        "fixed"
+    end
+end
+
+class ConvertibleDecorator < SimpleDelegator
+    def roof
+        "collapsible"
+    end
+
+    def self.decorate(car)
+        new(car)
+    end
+
+    private
+
+    def model
+        __getobj__
+    end
+end
+
+And this is how you can use it:
+
+basicCar1 = Car.new()
+basicCar2 = Car.new()
+
+basicCar1 = ConvertibleDecorator.decorate(basicCar1)
+
+puts(basicCar1.roof) # => collapsible
+puts(basicCar2.roof) # => fixed
+Form
+The form design pattern encapsulates the logic related to data validation and persistence into a single unit. As a result, it can often separate the logic from the views and make the form unit reusable throughout the codebase.
+
+Problem
+It seems easy to write the validation logic for a view with it or its model in most cases. You know where to look for the code, and if it’s short, it’s even better. However, this poses a severe threat to the overall quality of your codebase. You can not reuse logic written in views or models, and maintaining multiple copies of similar code can be problematic.
+
+Say you build an application that stores and displays posts made by the users, and each of the posts consists of the author's name, author’s email, post content, and a timestamp. You can choose to define its validation rules inside the Post model itself. While it would serve its purpose here, you will not be able to re-use the logic anywhere else. Say you were to design a comments system later in which each comment would use the same attributes as above (author, email, content, timestamp), you would have to rewrite the same validation rules for the new model. With the form pattern, you can save these efforts.
+
+Solution
+Using the form design pattern, you can isolate the validation and other relevant logic from your models and views. You can wrap it together in a Form object and reuse the logic wherever needed. This will reduce multiple copies of the same code and make it easy to debug your application.
+
+When To Use
+The Form pattern is preferable to use when:
+
+You are looking to reuse form validation rules across components.
+You wish to reduce code bloat inside models and controllers.
+You are trying to modularise your codebase and maintain each segment independently.
+Example
+Take a look at the following code:
+
+class PostsController < ApplicationController
+    def create
+        @post = Post.new(post_params)
+
+        if @post.save
+            render json: @post
+        else
+            render json: @post.error, status :unprocessable_entity
+        end
+    end
+
+    private
+
+    def post_params
+        params
+            .require(:post)
+            .permit(:email, :author, :content, :timestamp)
+        end
+    end
+
+class Post < ActiveRecord::Base
+    EMAIL_REGEX = /@/
+
+    validates :author, presence: true
+    validates :email, presence: true, format: EMAIL_REGEX
+    validates :content, presence: true
+    validates :timestamp, presence: true
+end
+In the above piece of code, the Post model contains the validation logic inside of it. If you want to create another model called “Comment,” you would have to rewrite the same logic again. Here’s how you can isolate the logic from the model using the form design pattern:
+
+class PostForm
+    EMAIL_REGEX = /@/
+
+    include ActiveModel::Model
+    include Virtus.model
+
+    attribute :id, Integer
+    attribute :author, String
+    attribute :email, String
+    attribute :content, String
+    attribute :timestamp, String
+
+    validates :author, presence: true
+    validates :email, presence: true, format: EMAIL_REGEX
+    validates :content, presence: true
+    validates :timestamp, presence: true
+
+    attr_reader :record
+
+    def persist
+        @record = id ? Post.find(id) : Post.new
+
+        if valid?
+            @record.attributes = attributes.except(:id)
+            @record.save!
+            true
+        else
+            false
+        end
+    end
+end
+
+Once the logic has been written in PostForm, you can use it inside a Controller like this:
+
+class PostsController < ApplicationController
+    def create
+        @post = UserPost.new(post_params)
+
+        if @post.persist
+            render json: @post.record
+        else
+            render json: @form.errors, status: :unprocessable_entity
+        end
+    end
+
+    private
+
+    def post_params
+        params
+            .require(:post)
+            .permit(:author, :email, :content, :timestamp)
+    end
+end
+
+
+
+Interactor
+You can use the interactor design pattern to split a large task into a series of small, inter-dependent steps. If any of the steps fail, the flow stops, and a relevant message appears about why the execution failed.
+
+Problem
+In many real-life scenarios, such as making a purchase or completing a bank transaction, multiple steps are involved. Each of these steps usually consists of entire tasks in themselves. To complete a sale, you need to create the sale record, find and update the stock for the product sold, process and ship the product to the shipping division, and finally send a confirmation email to the user. You could choose to do this by writing one large method that completes these steps one by one. But there would be several issues with the method:
+
+Cluttered: One method with a large amount of code will be challenging to understand and maintain.
+Fragile: Since there is no order involved, you can easily misplace a single line of code and watch your application crumble to pieces.
+Inflexible: If you need to add a small change like validation in one of the intermediate steps, you would have to refactor the complete method in some cases.
+Solution
+To solve all of the problems mentioned above, you can use the interactor design pattern to modularise each intermediate step and isolate their code. Each of these modules is called interactors. If any of the interactors fails, those after it will not execute, similar to how your flow would have worked before.
+
+When To Use
+The Iterator pattern is most useful in the following situations:
+
+When you are trying to break down an extensive process into smaller steps.
+When you need the flexibility of making frequent changes to the substeps of an extensive process.
+When you are looking to use external APIs in a small part of a more significant task
+Example
+This is how you can create a sale process using the interactor design pattern:
+
+class ManageStocks
+    include Interactor
+
+    def call
+        # retrieve and update stocks here
+    end
+end
+
+class DispatchShipment
+    include Interactor
+
+    def call
+        # order the dispatch of the goods here
+    end
+end
+
+class ScheduleMail
+    include Interactor
+
+    def call
+        # send an email to the recipient here
+    end
+end
+
+class MakeSale
+    include Interactor::Organizer
+
+    organize ManageStocks, DispatchShipment, ScheduleMail
+end
+
+Here’s how you can perform a transaction:
+
+result = MakeSale.call(
+    recipient: user, products: products
+)
+
+puts outcome.success?
+puts outcome.message
+
+Observer
+The Observer pattern notifies other interested objects if any events occur with the object in observation. The observed object maintains a list of its observers and sends them an update whenever its state changes.
+
+Problem
+Let’s say you are building an online store that offers multiple types of products. You already have a database of your customers as well as your products. It’s possible that some of your customers are interested in a particular type of product, say laptops. They would want to know when your store has new laptops to offer. Now, they could try checking your store every once in a while for new laptops, but that can get tiresome. Also, you could consider sending out emails to every customer whenever any new products arrive. But that would also send emails about new laptops to those who aren’t interested in laptops. This creates a situation in which either party has to overspend resources to maintain a good customer experience and business revenue.
+
+Solution
+The easiest solution to the above problem is to maintain a preference list for every customer. Each customer can choose the products they want notifications about, and when a new product arrives, the store can check the list and mail the interested customers accordingly. This is what the Observer pattern does. The products in the above example are known as publishers or the objects that notify other objects. The customers from the above example are subscribers or the objects that receive notifications of changes. The publisher also contains measures to add or remove subscribers, which was done by signing up or out of the preferences list in our above example.
+
+When To Use
+The Observer pattern is beneficial in the following situations:
+
+When you are making multiple view changes manually via code.
+When the state of more than one object directly depends on the state of a specific object.
+When there are multiple views whose state depends on the state of a particular object.
+Example
+Let’s build the product and customer example that we talked about earlier. First of all, this is how a basic implementation of a Product would look:
+
+require 'observer'
+
+class Product
+  include Observable
+
+  attr_reader :name, :stock
+
+  def initialize(name = "", stock = 0)
+    @name, @stock = name, stock
+    add_observer(Notifier.new)
+  end
+
+  def update_stock(stock)
+    @stock = stock
+    changed
+    notify_observers(self, stock)
+  end
+end
+Next, you need a subscriber class that will receive updates on the stock changes:
+
+class Notifier
+  def update(product, stock)
+    puts "The #{product.name} is in stock" if stock > 0
+    puts "The #{product.name} is sold out!" if stock == 0
+  end
+end
+
+Finally, this is how you can use them together:
+
+product = Product.new("AB Laptop")
+
+product.update_stock(7)
+# => The AB Laptop is in stock
+
+product.update_stock(3)
+# => The AB Laptop is in stock
+
+product.update_stock(0)
+# => The AB Laptop is sold out!
+
+product.update_stock(2)
+# => The AB Laptop is in stock
+
+product.update_stock(0)
+# => The AB Laptop is sold out!
+
+Policy
+The policy design pattern isolates the validation logic from models. The model is unaware of the validation implementation in the policy, and it receives a boolean value only.
+
+Problem
+In many cases, classes contain multiple validation checks on their attributes. This occurs inside the class itself, which becomes a severe code smell issue when the number of classes and validation checks increases. In most real-life cases, multiple classes use a common set of validation checks on their attributes; hence maintaining a separate entity for validation makes sense.
+
+Solution
+The solution to the above problem is to create a Policy class that contains the validation logic for each model. You can use this class to retrieve true or false results where validation is required. Once again, making changes to how the validation occurs will not affect the model’s logic, and there will be fewer errors and less clutter.
+
+When To Use
+The Policy pattern is helpful in the following situations:
+
+When you have multiple checks in your code and all of them return a boolean value.
+When your checks involve more than one model or API.
+Example
+Here is how you can define a Policy class:
+
+class PostPolicy
+    def initialize(post)
+       @post = post
+    end
+
+    private
+    attr_reader :post
+
+    def hasEmail?
+        post.email?
+    end
+
+    def hasAuthor?
+        post.author?
+    end
+end
+
+The above policy implements checks for email and author. You can use it in the following way:
+
+class PostHandler
+    def uploadPost(post)
+    # method to upload a post to database
+        policy = PostPolicy.new(post)
+
+        if (policy.hasEmail && policy.hasAuthor)
+            # save to database here
+        else
+            puts "error occurred"
+        end
+    end
+end
+Presenter
+The Presenter design pattern aims to isolate view rendering logic from the controller and model and encapsulate it into a reusable component. It makes the controller and models leaner and enhances code readability.
+
+Problem
+While programming without a proper plan, developers tend to overload their views with rendering logic, such as cleaning or formatting the data received from external APIs or conditionally rendering views based on logic defined inside controllers. While this seems like a nice little shortcut in smaller applications, this can contribute to a big code smell in growing applications. The models and controllers can get bloated with unnecessary rendering logic, and maintenance of their code can become cumbersome.
+
+Solution
+The solution to the above problem is to isolate the view rendering logic from the models, classes, and HTML views into independent modules/classes called Presenters. These Presenters will hold the logic for cleaning, formatting, and validating data and will present the view only with the final information that it can directly display. This enhances the modularity of code and makes the models and controllers leaner.
+
+When To Use
+The Presenter is pattern is suitable for use in the following conditions:
+
+When you are trying to build an extensive application that has multiple models and controllers.
+When the same model is used at multiple places, requiring the same rendering logic numerous times.
+Example
+Before understanding the impact of the Presenter pattern, let’s take a look at an example that does not use the pattern:
+
+<% #/app/views/posts/view.html.erb %>
+<% content_for :header do %>
+ <title>
+     <%= @post.title %>
+ </title>
+ <meta name='description' content="<%= @post.description_for_head %>">
+  <meta property="og:type" content="post">
+  <meta property="og:title" content="<%= @post.title %>">
+  <% if @post.description_for_head %>
+    <meta property="og:description" content="<%= @post.description_for_head %>">
+  <% end %>
+  <% if @post.image %>
+     <meta property="og:image" content="<%= "#{request.protocol}#{request.host_with_port}#{@post.image}" %>">
+  <% end %>
+<% end %>
+
+<% if @post.image %>
+ <%= image_tag @post.image.url %>
+<% else %>
+ <%= image_tag 'no-image.png'%>
+<% end %>
+
+<h1>  <%= @post.title %> </h1>
+<p>  <%= @post.content %> </p>
+
+<% if @post.author %>
+<p>  <%= "#{@post.author.first_name} #{@post.author.last_name}" %> </p>
+<%end%>
+
+<p>
+ <%= t('date') %>
+ <%= @post.timestamp.strftime("%B %e, %Y")%>
+</p>
+As you can see, the view appears very cluttered since the conditional validation and other checks have been implemented directly in the view. Here’s how it would look if you used a presenter object to render the views:
+
+<%# /app/views/posts/view.html.erb %>
+<% presenter @post do |post_presenter| %>
+ <% content_for :header do %>
+   <%= post_presenter.meta_title %>
+   <%= post_presenter.meta_description %>
+   <%= post_presenter.og_type %>
+   <%= post_presenter.og_title %>
+   <%= post_presenter.og_description %>
+   <%= post_presenter.og_image %>
+ <% end %>
+ <%= post_presenter.image%>
+ <h1> <%= post_presenter.title %> </h1>
+ <p>  <%= post_presenter.content %> </p>
+ <%= post_presenter.author_name %>
+ <p> <%= post_presenter.timestamp %></p>
+<% end %>
+And this is how your PostPresenter would look:
+
+class PostPresenter
+  def initialize(post)
+    @post = post
+  end
+
+  def image
+    @post.image? ? @post.image.url : 'no-image.png'
+  end
+
+  # similary define other methods with their logic
+
+end
+Query
+The Query design pattern is used in Rails to isolate querying logic from Controllers. It helps to create reusable classes you can invoke in more than one place.
+
+Problem
+While writing the code for querying data in an application, developers often write down small database queries inside the controller. This seems like an easy alternative as queries are sometimes just one to two lines long, but in this process, the same short query gets written inside multiple controllers, as and when needed. This poses difficulty in maintaining the code, as a slight change in the query structure needs to be done manually across all its copies.
+
+Solution
+The solution to the above problem is to isolate the querying logic into a separate class of itself. You can invoke this class to query and provide data to the controllers. Apart from maintaining a single copy for a query, it also separates querying logic from controllers. In this way, the controllers are only concerned about running queries and getting results; the internal logic of a query is irrelevant to controllers and other classes.
+
+When To Use
+The Query pattern helps in the following situations:
+
+When there is a considerable number of queries taking place in your application.
+When queries are being re-used at multiple places.
+Example
+Here’s a basic implementation of a Query object for isolating the logic of fetching the most popular Posts from the database:
+
+class PopularPostsQuery
+  def call(relation)
+    relation
+      .where(type: :post)
+      .where('view_count > ?', 100)
+  end
+end
+
+class PostsController < ApplicationController
+  def index
+    relation = Post.accessible_by(current_ability)
+    @popular_posts = PopularPostsQuery.new.call(relation)
+  end
+end
+Service
+The service design pattern breaks down a program into its functional constituents. Each service object completes one task, such as running payment for a customer, completing a bank transaction, etc.
+
+Problem
+Usually, developers tend to write business logic for a task in one place. Say you are trying to build an eCommerce application. You need to define logic for checking out a cart once a user is ready. If you have initially planned only one point in your application for checking out, you will want to write the checkout logic around that point only. Later, if you try to create a quick check-out button somewhere else in your app, you will have to rewrite the complete logic at the new place. This will add to the code redundancy and reduce the maintainability of the codebase.
+
+Solution
+If you isolate the check-out logic from the above problem into a separate class of its own, you can easily invoke that class wherever you need to process a checkout request. Once again, this isolates logic from views, which makes your application more modular. If your business logic involves external APIs, using a service keeps your main code clean, while you can easily integrate and replace APIs in your service classes.
+
+When To Use
+The Service pattern is useful when:
+
+You have to carry out sensitive tasks, and you wish to isolate the logic from the main code, like running a monetary transaction or registering a sale.
+You are building your transactions to operate in multiple places in your codebase.
+Example
+Here’s an example of a basic file downloader service that can hit any URL and display the data received in the form of a string.
+
+require "down"
+
+class FileDownloaderService
+  def self.call(url)
+    tempfile = Down.download(url)
+    tempfile.read.to_s
+  end
+end
+
+puts FileDownloaderService.call("https://dog-facts-api.herokuapp.com/api/v1/resources/dogs?index=3")
+# Output =>
+#[
+# {
+#   "fact": "Apple and pear seeds contain arsenic, which may be deadly to dogs."
+# }
+#]
+The above example shows how you can use an external API in the Service class to complete your operations, while the calling environment has no clue about how the data is retrieved.
+
+Value
+The Value design pattern isolates static, constant values from the active code of an application. You use a separate class or module for storing constant values at one place and access them wherever and whenever needed.
+
+Problem
+More often than not, a program’s logic requires a range of constants to function correctly. Say you are building an application that converts temperature from one unit to another. For this, you would need to store the formula for each conversion. While you could keep this either in the controller or in the model, you would only be adding to their code weight and making the formulas inaccessible from other segments of your application.
+
+Solution
+The solution to the above problem is to define a class or a module to store the conversion formulae and use them wherever needed. Note that this is different from a Service or a Query as it only keeps constant or static data. You should not define any methods that depend upon external factors such as APIs in a Value module. It should either contain pure values or basic operations.
+
+When To Use
+The Value pattern is helpful in the following situations:
+
+When your code involves a large number of constants or static operations.
+When you want to reuse a common set of constants at multiple places in your code.
+When you want to use different sets of constants for various flavors of your app.
+Example
+To understand the use of the Value pattern, first, let’s take a look at the following piece of code:
+
+class EmailHandler
+    def initialize(emails)
+        @emails = emails
+    end
+
+    def get_data
+        emails.map { |email| {
+                name: email.match(/([^@]*)/).to_s,
+                domain: email.split("@").last
+            }
+        }
+    end
+
+    private
+    attr_reader :emails
+end
+
+puts EmailHandler.new(["abc@xyz.com", "abd@xyx.cd"]).get_data
+# => {:name=>"abc", :domain=>"xyz.com"}
+# => {:name=>"abd", :domain=>"xyx.cd"}
+The above code works, but as you can see, the operation to extract data from the email addresses is inside the handler class. This is how you can simplify it by using the Value design pattern:
+
+class EmailValues
+    def initialize(email)
+        @email = email
+    end
+
+    def name
+        email.match(/([^@]*)/).to_s
+    end
+
+    def domain
+        email.split("@").last
+    end
+
+    def to_h
+        { name: name, domain: domain }
+    end
+
+    private
+    attr_reader :email
+end
+And use the Value object in the handler class:
+
+class EmailHandler
+    def initialize(emails)
+        @emails = emails
+    end
+
+    def get_data
+        emails.map { |email| EmailValues.new(email).to_h }
+    end
+
+    private
+    attr_reader :emails
+end
+
+puts EmailHandler.new(["abc@xyz.com", "abd@xyx.cd"]).get_data
+# => {:name=>"abc", :domain=>"xyz.com"}
+# => {:name=>"abd", :domain=>"xyx.cd"}
